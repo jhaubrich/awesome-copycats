@@ -7,7 +7,7 @@ Power themes for Awesome WM 3.5+
 --------------------------------
 
 :Author: Luke Bonham <dada [at] archlinux [dot] info>
-:Version: 2.0-git
+:Version: git
 :License: BY-NC-SA_
 :Source: https://github.com/copycat-killer/awesome-copycats
 
@@ -103,7 +103,7 @@ Then customize your ``rc.lua`` and restart Awesome (``Mod4 + ctrl + r``).
 Notes
 =====
 
-Be sure to have the latest **stable** versions of Lua and Awesome.
+Only compatible with **stable** versions of Lua and Awesome (git/unstable versions are *not* supported).
 
 Complements are provided by lain_: be sure to meet its dependencies_.
 

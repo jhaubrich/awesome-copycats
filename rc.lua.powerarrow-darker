@@ -53,8 +53,6 @@ run_once("unclutter -root")
 -- }}}
 
 -- {{{ Variable definitions
--- localization
-os.setlocale(os.getenv("LANG"))
 
 -- beautiful init
 beautiful.init(os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-darker/theme.lua")
@@ -115,6 +113,14 @@ separators = lain.util.separators
 -- Textclock
 clockicon = wibox.widget.imagebox(beautiful.widget_clock)
 mytextclock = awful.widget.textclock(" %a %d %b  %H:%M")
+
+mytextclock = lain.widgets.abase({
+    timeout  = 60,
+    cmd      = "date +'%a %d %b %R'",
+    settings = function() 
+        widget:set_text(" " .. output)
+    end
+})
 
 -- calendar
 lain.widgets.calendar:attach(mytextclock, { font_size = 10 })
