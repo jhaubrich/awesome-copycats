@@ -1,7 +1,9 @@
 #+title: My Awesome Config
 #+author: Jesse Haubrich
 
-Literate programing, org-mode, and tangle make my awesome config manageable.
+Literate programing, org-mode, and tangle make my awesome config.
+
+Run =org-bable-tangle= on this =README.org= file to get a compiled rc.lua.
 
 * imports
 #+begin_src lua  :tangle rc.lua
@@ -28,7 +30,7 @@ local alttab = require("alttab")
 local drop      = require("scratchdrop")
 local lain      = require("lain")
 #+end_src
-
+  
 * error handling
 Check if awesome encountered an error during startup and fell back to another
 config (This code will only ever execute for the fallback config).
@@ -56,7 +58,8 @@ do
 end
 #+end_src
  
-* autostart apps
+* TODO autostart apps
+I'm not sure this actually works.
 #+begin_src lua  :tangle rc.lua
 function run_once(cmd)
   findme = cmd
@@ -88,7 +91,7 @@ modkey     = "Mod4"
 altkey     = "Mod1"
 terminal   = "urxvtc" or "xterm"
 gterminal  = "gnome-terminal --hide-menubar"
-eterminal  = "macsclient -c -e \"(eshell \"new\")\""
+eterminal  = "emacsclient -c -e \"(eshell \"new\")\""
 editor = os.getenv("EDITOR") or "emacsclient"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -124,63 +127,6 @@ local layouts =
 }
 #+end_src
 
-* tags
-Qtile style "zxcv". Maybe someday I'll want more than 4 desktops, though I doubt
-it.
-#+begin_src lua  :tangle rc.lua
-tags = {
-   names = { "z", "x", "c", "v"},
-   layout = { layouts[1], layouts[2], layouts[2], layouts[4]}
-}
-
-for i = 1, #tags.names do
-    globalkeys = awful.util.table.join(globalkeys,
-        -- View tag only.
-        awful.key({ modkey }, tags.names[i],
-                  function ()
-                        local screen = mouse.screen
-                        local tag = awful.tag.gettags(screen)[i]
-                        if tag then
-                           awful.tag.viewonly(tag)
-                        end
-                  end),
-        -- Toggle tag.
-        awful.key({ modkey, "Shift" }, tags.names[i],
-                  function ()
-                      local screen = mouse.screen
-                      local tag = awful.tag.gettags(screen)[i]
-                      if tag then
-                         awful.tag.viewtoggle(tag)
-                      end
-                  end),
-        -- Move client to tag.
-        awful.key({ modkey, "Control" }, tags.names[i],
-                  function ()
-                      if client.focus then
-                          local tag = awful.tag.gettags(client.focus.screen)[i]
-                          if tag then
-                              awful.client.movetotag(tag)
-                          end
-                     end
-                  end),
-        -- Toggle tag.
-        awful.key({ modkey, "Shift", "Control"}, tags.names[i],
-                  function ()
-                      if client.focus then
-                          local tag = awful.tag.gettags(client.focus.screen)[i]
-                          if tag then
-                              awful.client.toggletag(tag)
-                          end
-                      end
-                  end))
-end
-
-
-for s = 1, screen.count() do
-   tags[s] = awful.tag(tags.names, s, tags.layout)
-end
-#+end_src
-   
 * appearance
 ** powerarrow-darker theme
 #+begin_src lua  :tangle rc.lua
@@ -579,6 +525,7 @@ globalkeys = awful.util.table.join(
     --         mpdwidget.update()
     --     end),
 #+end_src 
+
 *** misc
 #+begin_src lua  :tangle rc.lua
     -- Copy to clipboard
@@ -614,6 +561,63 @@ globalkeys = awful.util.table.join(
 
 )
 #+end_src
+
+** tags
+Qtile style "zxcv". Maybe someday I'll want more than 4 desktops. Probably not.
+
+#+begin_src lua  :tangle rc.lua
+tags = {
+   names = { "z", "x", "c", "v"},
+   layout = { layouts[1], layouts[2], layouts[2], layouts[4]}
+}
+
+for i = 1, #tags.names do
+    globalkeys = awful.util.table.join(globalkeys,
+        -- View tag only.
+        awful.key({ modkey }, tags.names[i],
+                  function ()
+                        local screen = mouse.screen
+                        local tag = awful.tag.gettags(screen)[i]
+                        if tag then
+                           awful.tag.viewonly(tag)
+                        end
+                  end),
+        -- Toggle tag.
+        awful.key({ modkey, "Shift" }, tags.names[i],
+                  function ()
+                      local screen = mouse.screen
+                      local tag = awful.tag.gettags(screen)[i]
+                      if tag then
+                         awful.tag.viewtoggle(tag)
+                      end
+                  end),
+        -- Move client to tag.
+        awful.key({ modkey, "Control" }, tags.names[i],
+                  function ()
+                      if client.focus then
+                          local tag = awful.tag.gettags(client.focus.screen)[i]
+                          if tag then
+                              awful.client.movetotag(tag)
+                          end
+                     end
+                  end),
+        -- Toggle tag.
+        awful.key({ modkey, "Shift", "Control"}, tags.names[i],
+                  function ()
+                      if client.focus then
+                          local tag = awful.tag.gettags(client.focus.screen)[i]
+                          if tag then
+                              awful.client.toggletag(tag)
+                          end
+                      end
+                  end))
+end
+
+
+for s = 1, screen.count() do
+   tags[s] = awful.tag(tags.names, s, tags.layout)
+end
+#+end_src
  
 ** client keys
 
@@ -646,10 +650,12 @@ clientbuttons = awful.util.table.join(
     awful.button({ altkey }, 1, awful.mouse.client.move),
     awful.button({ altkey }, 3, awful.mouse.client.resize))
 
--- Set keys
-root.keys(globalkeys)
--- }}}
 #+end_src
+
+** set keys
+#+begin_src lua :tangle rc.lua
+root.keys(globalkeys)
+#+end_src   
 
 * rules
 Rules to apply to new clients (through the "manage" signal).
@@ -795,7 +801,7 @@ end
 #+end_src
 
 * Remember floating window positions
-When cycling through layouts the floating layout remebmers where the windows are
+When cycling through layouts it is remembered where the windows are floating
 so that when returning you don't get a messed up desktop. This should be the
 default behavior really.  https://bbs.archlinux.org/viewtopic.php?id=128623
 
