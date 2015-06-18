@@ -104,6 +104,9 @@ graphics   = "gimp"
 mail       = terminal .. " -e mutt "
 iptraf     = terminal .. " -e sudo iptraf-ng -i all " -- " -g 180x54-20+34 -e sudo iptraf-ng -i all "
 musicplr   = terminal .. " -e ncmpcpp " --" -g 130x34-320+16 -e ncmpcpp "
+
+invert_screen = "xcalib -invert -alter"
+
 #+end_src
 
 * layouts
@@ -125,6 +128,41 @@ local layouts =
 --    awful.layout.suit.max.fullscreen,
     awful.layout.suit.magnifier
 }
+#+end_src
+
+* TODO shared tags
+
+https://awesome.naquadah.org/wiki/Shared_tags 
+
+For me it is much easier to have one set of tags for all of my screens than to
+have a copy of my tag-set for each of them. So I know for example that my
+browser is always on tag "www" and don't have to care if it's on my first,
+second or nth screen.
+
+This does not mean that it is possible to view one tag on two screens at the
+same time (this is caused by the x-server not by awesome).
+
+For this reason I've created a module called sharedtags on github. You can find
+it [[https://github.com/lammermann/awesome-configs/blob/master/rc.lua][here]]  It is used this way:
+
+
+#+begin_src lua 
+   require("sharetags")
+   ...
+   -- for s = 1, screen.count() do
+   --     -- Each screen has its own tag table.
+   --     tags[s] = awful.tag(tags.names, s, tags.layout)
+   -- end
+   tags = sharetags.create_tags(tags.names, tags.layout)
+   ...
+   for s = 1, screen.count() do
+       ...
+       -- Create a taglist widget
+       --mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
+       mytaglist[s] = sharetags.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
+       ...
+   end
+
 #+end_src
 
 * appearance
@@ -442,6 +480,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Shift"   }, "s", function () awful.screen.focus_relative( 1) end),
     awful.key({ modkey, "Shift"   }, "f", function () awful.screen.focus_relative(-1) end),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto),
+    awful.key({ modkey            }, "i", function () awful.util.spawn(invert_screen) end),
     -- awful.key({ modkey,           }, "Tab",
     --     function ()
     --         awful.client.focus.history.previous()
@@ -478,52 +517,40 @@ globalkeys = awful.util.table.join(
 --    awful.key({ altkey,           }, "h",      function () fswidget.show(7) end),
 #+end_src
  
-*** TODO ALSA volum control
-
+*** ALSA volume control
+Borrowed most of this from the default qtile config. Those guys had this figured out.
 #+begin_src lua  :tangle rc.lua
-    -- awful.key({ altkey }, "Up",
-    --     function ()
-    --         os.execute(string.format("amixer -c %s set %s 1+", volumewidget.card, volumewidget.channel))
-    --         volumewidget.update()
-    --     end),
-    -- awful.key({ altkey }, "Down",
-    --     function ()
-    --         os.execute(string.format("amixer -c %s set %s 1-", volumewidget.card, volumewidget.channel))
-    --         volumewidget.update()
-    --     end),
-    -- awful.key({ altkey }, "m",
-    --     function ()
-    --         os.execute(string.format("amixer -c %s set %s toggle", volumewidget.card, volumewidget.channel))
-    --         --os.execute(string.format("amixer set %s toggle", volumewidget.channel))
-    --         volumewidget.update()
-    --     end),
-    -- awful.key({ altkey, "Control" }, "m",
-    --     function ()
-    --         os.execute(string.format("amixer -c %s set %s 100%%", volumewidget.card, volumewidget.channel))
-    --         volumewidget.update()
-    --     end),
-
-    -- MPD control
-    -- awful.key({ altkey, "Control" }, "Up",
-    --     function ()
-    --         awful.util.spawn_with_shell("mpc toggle || ncmpc toggle || pms toggle")
-    --         mpdwidget.update()
-    --     end),
-    -- awful.key({ altkey, "Control" }, "Down",
-    --     function ()
-    --          awful.util.spawn_with_shell("mpc stop || ncmpc stop || pms stop")
-    --         mpdwidget.update()
-    --     end),
-    -- awful.key({ altkey, "Control" }, "Left",
-    --     function ()
-    --         awful.util.spawn_with_shell("mpc prev || ncmpc prev || pms prev")
-    --         mpdwidget.update()
-    --     end),
-    -- awful.key({ altkey, "Control" }, "Right",
-    --     function ()
-    --         awful.util.spawn_with_shell("mpc next || ncmpc next || pms next")
-    --         mpdwidget.update()
-    --     end),
+  awful.key({ }, "XF86AudioRaiseVolume",
+      function ()
+          os.execute(string.format("amixer -c %s set %s 1+", volumewidget.card, volumewidget.channel))
+          volumewidget.update()
+      end),
+  awful.key({ }, "XF86AudioLowerVolume",
+      function ()
+          os.execute(string.format("amixer -c %s set %s 1-", volumewidget.card, volumewidget.channel))
+          volumewidget.update()
+      end),
+  awful.key({ }, "XF86AudioMute",
+      function ()
+          os.execute(string.format("amixer -q set Master toggle", volumewidget.card, volumewidget.channel))
+          --os.execute(string.format("amixer set %s toggle", volumewidget.channel))
+          volumewidget.update()
+      end),
+  awful.key({ }, "XF86AudioPlay",
+      function ()
+          awful.util.spawn_with_shell("mpc toggle || ncmpc toggle || pms toggle")
+          mpdwidget.update()
+      end),
+  awful.key({ }, "XF86AudioPerv",
+      function ()
+          awful.util.spawn_with_shell("mpc prev || ncmpc prev || pms prev")
+          mpdwidget.update()
+      end),
+  awful.key({ }, "XF86AudioNext",
+      function ()
+          awful.util.spawn_with_shell("mpc next || ncmpc next || pms next")
+          mpdwidget.update()
+      end),
 #+end_src 
 
 *** misc
@@ -568,7 +595,7 @@ Qtile style "zxcv". Maybe someday I'll want more than 4 desktops. Probably not.
 #+begin_src lua  :tangle rc.lua
 tags = {
    names = { "z", "x", "c", "v"},
-   layout = { layouts[1], layouts[2], layouts[2], layouts[4]}
+   layout = { layouts[1], layouts[1], layouts[1], layouts[3]}
 }
 
 for i = 1, #tags.names do
