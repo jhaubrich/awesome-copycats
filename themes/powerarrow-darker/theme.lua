@@ -5,27 +5,39 @@
                                              
 --]]
 
+-- colorOrange          = "#ff7701"
+-- colorDarkGray        = "#171717"
+-- colorPink            = "#e3008d"
+-- colorGreen           = "#00aa4a"
+-- colorBlue            = "#008dd5"
+-- colorYellow          = "#fee100"
+-- colorWhite           = "#cfbfad"
+ 
+-- colorNormalBorder    = "#1c2636"
+-- colorFocusedBorder   = "#2797d8"
+
+
 theme                               = {}
 
 themes_dir                          = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-darker"
 theme.wallpaper                     = themes_dir .. "/wall.png"
 
-theme.font                          = "Terminus 16"
+theme.font                          = "DejaVu Sans Mono 16"
 theme.fg_normal                     = "#DDDDFF"
 theme.fg_focus                      = "#F0DFAF"
 theme.fg_urgent                     = "#CC9393"
 theme.bg_normal                     = "#1A1A1A"
 theme.bg_focus                      = "#313131"
 theme.bg_urgent                     = "#1A1A1A"
-theme.border_width                  = "1"
+theme.border_width                  = "2"
 theme.border_normal                 = "#3F3F3F"
-theme.border_focus                  = "#7F7F7F"
+theme.border_focus                  = "#2797d8"
 theme.border_marked                 = "#CC9393"
 theme.titlebar_bg_focus             = "#FFFFFF"
 theme.titlebar_bg_normal            = "#FFFFFF"
-theme.taglist_fg_focus              = "#D8D782"
+theme.taglist_fg_focus              = "#ff7701"
 theme.tasklist_bg_focus             = "#1A1A1A"
-theme.tasklist_fg_focus             = "#D8D782"
+theme.tasklist_fg_focus             = "#008dd5"
 theme.textbox_widget_margin_top     = 1
 theme.notify_fg                     = theme.fg_normal
 theme.notify_bg                     = theme.bg_normal
@@ -81,4 +93,25 @@ theme.tasklist_floating             = ""
 theme.tasklist_maximized_horizontal = ""
 theme.tasklist_maximized_vertical   = ""
 
+theme.layout_txt_tile               = "[t]"
+theme.layout_txt_tileleft           = "[l]"
+theme.layout_txt_tilebottom         = "[b]"
+theme.layout_txt_tiletop            = "[tt]"
+theme.layout_txt_fairv              = "[fv]"
+theme.layout_txt_fairh              = "[fh]"
+theme.layout_txt_spiral             = "[s]"
+theme.layout_txt_dwindle            = "[d]"
+theme.layout_txt_max                = "[m]"
+theme.layout_txt_fullscreen         = "[F]"
+theme.layout_txt_magnifier          = "[M]"
+theme.layout_txt_floating           = "[|]"
+
+-- lain related
+theme.layout_txt_termfair           = "[termfair]"
+theme.layout_txt_uselessfair        = "[ufv]"
+theme.layout_txt_uselessfairh       = "[ufh]"
+theme.layout_txt_uselessdwindle     = "[ud]"
+theme.layout_txt_uselesstile        = "[ut]"
+
+theme.useless_gap_width = 5
 return theme
