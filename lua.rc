@@ -1,0 +1,34 @@
+
+invert_screen = "xcalib -invert -alter"
+
+-- the code below does not work --
+inverted = false
+function invert_screens()
+   -- need a static variable that we can check each time.
+   -- probably just a global
+   if inverted then
+      inverted = false
+   else
+      inverted = true
+   end
+   
+   awful.util.spawn_with_shell("xcalib -invert -alter")
+   -- set the wallpaper
+   for s = 1, screen.count() do
+      gears.wallpaper.maximized("some_light_wallpaper.png", s, true)
+   end
+   -- TODO: change the colors on the menu
+   -- probably by calling beautiful.init again, and putting the theme in its
+   -- own function.
+   beautiful.init(os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-lighter/theme.lua")  -- doesn't exist, yet
+   -- TODO: change emacs and terminal themes
+   -- TODO: change firefox theme
+   -- this would be so awesome
+end
+
+function custom_focus_filter(c)
+    if global_focus_disable then
+        return nil
+    end
+    return awful.client.focus.filter(c)
+end

@@ -60,8 +60,9 @@ do
 end
 #+end_src
  
-* TODO autostart apps
-I'm not sure this actually works.
+* autostart apps
+turfed to .xinitrc where it belongs.
+
 #+begin_src lua  :tangle rc.lua
 function run_once(cmd)
   findme = cmd
@@ -72,9 +73,9 @@ function run_once(cmd)
   awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. cmd .. ")")
 end
 
-run_once("urxvtd")
-run_once("xset r rate 200 30") -- cursor repeat speed
-run_once("unclutter") -- BUG: the "--root" option causes problems with focus when switching desktop tags. https://github.com/awesomeWM/awesome/issues/202
+-- run_once("xterm")
+-- run_once("xset r rate 200 30") -- cursor repeat speed
+-- run_once("unclutter") -- BUG: the "--root" option causes problems with focus when switching desktop tags. https://github.com/awesomeWM/awesome/issues/202
 -- run_once("sh /home/jhaus/bin/nasa_image_of_the_day.sh")  -- http://www.nasa.gov/rss/lg_image_of_the_day.rss
 #+end_src
  
@@ -86,7 +87,7 @@ os.setlocale(os.getenv("LANG"))
 -- common
 modkey     = "Mod4"
 altkey     = "Mod1"
-terminal   = "xfce4-terminal" or "urxvtc" or "xterm"
+terminal   = "urxvt" or "xterm" or "xfce4-terminal"
 gterminal  = "gnome-terminal --hide-menubar"
 eterminal  = "emacsclient -c -e \"(eshell \\\"new\\\")\""
 editor = os.getenv("EDITOR") or "emacsclient"
@@ -937,13 +938,13 @@ http://github.com/copycat-killer
   ))
   -- }}}
 #+end_src
- 
+
 * TODO Invert desktop colors
 We can invert the desktop colors (white to black, etc) using =xcalib=. We should
 also change Awesome's background and menu bar to something white (which would be
 black).
 
-#+begin_src lua :tanlgle lua.rc
+#+begin_src lua :tangle rc.lua
   invert_screen = "xcalib -invert -alter"
 
   -- the code below does not work --
@@ -973,40 +974,56 @@ black).
 
 #+end_src
 
+* Always on Top
+
+http://stackoverflow.com/questions/29681677/always-on-top-window-and-keeping-focus-on-awesomewm
+
+Also set =focus = custom_focus_filter= in awful.rules. And a keybind for the =global_focus_disable=.
+
+#+begin_src lua  :tangle rc.lua
+function custom_focus_filter(c)
+    if global_focus_disable then
+        return nil
+    end
+    return awful.client.focus.filter(c)
+end
+#+end_src
+
 * key bindings
 ** global keys
 #+begin_src lua  :tangle rc.lua
-globalkeys = awful.util.table.join(
-    awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
-    awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
-    awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
+  globalkeys = awful.util.table.join(
+      awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
+      awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
+      awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
 
-    awful.key({ modkey,           }, "s",
-        function ()
-            awful.client.focus.byidx( 1)
-            if client.focus then client.focus:raise() end
-        end),
-    awful.key({ modkey,           }, "f",
-        function ()
-            awful.client.focus.byidx(-1)
-            if client.focus then client.focus:raise() end
-        end),
-    -- awful.key({ modkey,           }, "w", function () mymainmenu:show() end),
-    awful.key({ modkey },            "l", function () awful.util.spawn(lock_srceen) end),
-    -- Layout manipulation
-    awful.key({ modkey, "Control" }, "s", function () awful.client.swap.byidx(  1)    end),
-    awful.key({ modkey, "Control" }, "f", function () awful.client.swap.byidx( -1)    end),
-    awful.key({ modkey, "Shift"   }, "s", function () awful.screen.focus_relative( 1) end),
-    awful.key({ modkey, "Shift"   }, "f", function () awful.screen.focus_relative(-1) end),
-    awful.key({ modkey,           }, "u", awful.client.urgent.jumpto),
-    awful.key({ modkey            }, "i", function () awful.util.spawn("xcalib -invert -alter") end),
-    -- awful.key({ modkey,           }, "Tab",
-    --     function ()
-    --         awful.client.focus.history.previous()
-    --         if client.focus then
-    --             client.focus:raise()
-    --         end
-    --     end),
+      awful.key({ modkey,           }, "s",
+          function ()
+              awful.client.focus.byidx( 1)
+              if client.focus then client.focus:raise() end
+          end),
+      awful.key({ modkey,           }, "f",
+          function ()
+              awful.client.focus.byidx(-1)
+              if client.focus then client.focus:raise() end
+          end),
+      -- awful.key({ modkey,           }, "w", function () mymainmenu:show() end),
+      awful.key({ modkey },            "l", function () awful.util.spawn(lock_srceen) end),
+      -- Layout manipulation
+      awful.key({ modkey, "Control" }, "s", function () awful.client.swap.byidx(  1)    end),
+      awful.key({ modkey, "Control" }, "f", function () awful.client.swap.byidx( -1)    end),
+      awful.key({ modkey, "Shift"   }, "s", function () awful.screen.focus_relative( 1) end),
+      awful.key({ modkey, "Shift"   }, "f", function () awful.screen.focus_relative(-1) end),
+      awful.key({ modkey,           }, "u", awful.client.urgent.jumpto),
+      awful.key({ modkey,           }, "a", function () global_focus_disable = not global_focus_disable end),
+      awful.key({ modkey            }, "i", function () awful.util.spawn("xcalib -invert -alter") end),
+      -- awful.key({ modkey,           }, "Tab",
+      --     function ()
+      --         awful.client.focus.history.previous()
+      --         if client.focus then
+      --             client.focus:raise()
+      --         end
+      --     end),
 #+end_src
 
 *** standard program
@@ -1071,7 +1088,7 @@ Borrowed most of this from the default qtile config. Those guys had this figured
           awful.util.spawn_with_shell("mpc next || ncmpc next || pms next")
           mpdwidget.update()
       end),
-#+end_src 
+#+end_src
 
 *** TODO misc
 #+begin_src lua  :tangle rc.lua
@@ -1242,16 +1259,15 @@ Rules to apply to new clients (through the "manage" signal).
       { rule = { },
         properties = { border_width = beautiful.border_width,
                        border_color = beautiful.border_normal,
-                       focus = awful.client.focus.filter,
+                       -- focus = awful.client.focus.filter,
+                       focus = custom_focus_filter,
                        raise = true,
                        keys = clientkeys,
                        size_hints_honor = false,
                        -- tag = tags[1][4],
                        buttons = clientbuttons },
         -- Put a copy of every window on 'v', expose like
-        callback = function(c) awful.client.toggletag(tags[1][4], c) end},
-      { rule = { class = "URxvt" },
-        properties = { opacity = 0.99 } },
+        -- callback = function(c) awful.client.toggletag(tags[1][4], c) end},
       { rule = { class = "MPlayer" },
         properties = { floating = true } },
       { rule = { class = "pinentry" },
@@ -1262,12 +1278,14 @@ Rules to apply to new clients (through the "manage" signal).
         properties = { floating = true } },
       { rule = { name = "Guild Wars 2" },
         properties = { floating = true } },
+      { rule = { name = "LibreOffice" },
+        properties = { floating = true } },
       { rule = { class = "Emacs" },
        properties = { size_hints_honor = false } },
       -- Set Firefox to always map on tags number 2 of screen 1.
       -- { rule = { class = "Firefox" },
       --   properties = { tag = tags[1][2] } },
-  }
+  }}
 #+end_src
 
 * signals
